@@ -1,16 +1,28 @@
 const User = require("../models/userModel");
+const Company = require("../models/companyModel");
 
 exports.getProfile = async (req, res) => {
   try {
     const userId = req.userId;
 
-    const user = await User.findById(userId).select("-password");
+    const [user, company] = await Promise.all([
+      User.findById(userId).select("-password"),
+      Company.findOne({ ownerId: userId }).select("_id name slug"),
+    ]);
 
-    res.json(user);
+    res.json({
+      ...user.toObject(),
+      company: company
+        ? {
+            id: company._id,
+            name: company.name,
+            slug: company.slug,
+          }
+        : null,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch profile",
-      error,
     });
   }
 };

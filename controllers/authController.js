@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Company = require("../models/companyModel");
 
 exports.registerUser = async (req, res) => {
   try {
@@ -61,6 +62,11 @@ exports.loginUser = async (req, res) => {
       });
     }
 
+    // get company data, if user is owner of any company
+    const company = await Company.findOne({ ownerId: user._id }).select(
+      "_id name slug",
+    );
+
     // create token
     const token = jwt.sign({ userId: user._id }, "secretkey", {
       expiresIn: "7d",
@@ -75,7 +81,17 @@ exports.loginUser = async (req, res) => {
 
     res.json({
       message: "Login successful",
-      user,
+      user: {
+        ...user.toObject(),
+        password: undefined,
+      },
+      company: company
+        ? {
+            id: company._id,
+            name: company.name,
+            slug: company.slug,
+          }
+        : null,
     });
   } catch (error) {
     res.status(500).json({
