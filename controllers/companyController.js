@@ -83,3 +83,71 @@ exports.getCompanyBySlug = async (req, res) => {
     });
   }
 };
+
+exports.updateCompany = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const userId = req.userId;
+
+    const company = await Company.findOne({ slug });
+
+    if (!company) {
+      return res.status(404).json({
+        message: "Company not found",
+      });
+    }
+    if (company.ownerId.toString() !== userId) {
+      return res.status(403).json({
+        message: "Not authorized to update this company",
+      });
+    }
+
+    const {
+      name,
+      description,
+      industry,
+      size,
+      location,
+      logo,
+      website,
+      contactEmail,
+      contactPhone,
+      linkedin,
+      twitter,
+    } = req.body;
+
+    company.name = name ?? company.name;
+    company.description = description ?? company.description;
+    company.industry = industry ?? company.industry;
+    company.size = size ?? company.size;
+    company.location = location ?? company.location;
+    company.logo = logo ?? company.logo;
+    company.website = website ?? company.website;
+    company.contactEmail = contactEmail ?? company.contactEmail;
+    company.contactPhone = contactPhone ?? company.contactPhone;
+    company.linkedin = linkedin ?? company.linkedin;
+    company.twitter = twitter ?? company.twitter;
+
+    const oldName = company.name;
+    if (name) company.name = name;
+
+    if (name && name !== oldName) {
+      company.slug = name
+        .toLowerCase()
+        .replace(/ /g, "-")
+        .replace(/[^\w-]+/g, "");
+    }
+
+    await company.save();
+
+    res.status(200).json({
+      message: "Company updated successfully",
+      company,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update company",
+      error: error.message,
+    });
+  }
+};
