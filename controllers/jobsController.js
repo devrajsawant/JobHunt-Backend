@@ -83,3 +83,27 @@ exports.getCompanyJobs = async (req, res) => {
     });
   }
 };
+
+exports.getJobById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const job = await Job.findById(id).populate("companyId");
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Job fetched successfully",
+      job,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch job",
+      error: error.message,
+    });
+  }
+};

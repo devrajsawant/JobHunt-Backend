@@ -84,6 +84,26 @@ exports.getCompanyBySlug = async (req, res) => {
   }
 };
 
+exports.getCompanyById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const company = await Company.findOne({ _id:id });
+
+    if (!company) {
+      return res.status(404).json({
+        message: "Company not found",
+      });
+    }
+
+    res.status(200).json(company);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch company",
+      error: error.message,
+    });
+  }
+};
+
 exports.updateCompany = async (req, res) => {
   try {
     const { slug } = req.params;
