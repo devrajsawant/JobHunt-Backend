@@ -17,9 +17,20 @@ const PORT = process.env.PORT || 8000;
 
 connectDB(); // DB Connection
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.CLIENT_URL,
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        return callback(new Error(`CORS error: ${origin} not allowed`), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   }),
 );
