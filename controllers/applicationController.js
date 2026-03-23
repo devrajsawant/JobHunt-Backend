@@ -105,3 +105,60 @@ exports.getMyApplications = async (req, res) => {
     });
   }
 };
+
+exports.getJobApplications = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    // 1. Validate
+    if (!jobId) {
+      return res.status(400).json({
+        success: false,
+        message: "Job ID is required",
+      });
+    }
+
+    // 2. Check job exists
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    // 3. (Optional but IMPORTANT) Authorization check
+    // Only company/recruiter who owns job should access
+    // if (job.companyId.toString() !== req.userId) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "Not authorized to view applications for this job",
+    //   });
+    // }
+
+    // 4. Fetch applications
+    const applications = await Application.find({ jobId })
+      .populate({
+        path: "userId",
+        select: "name email", // add more if needed
+      })
+      .populate({
+        path: "jobId",
+        select: "title location",
+      })
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: applications.length,
+      applications,
+    });
+  } catch (error) {
+    console.error("Get Job Applications Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};

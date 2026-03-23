@@ -4,7 +4,7 @@ const router = express.Router();
 const {
   applyToJob,
   getMyApplications,
-  //   getJobApplications,
+  getJobApplications,
   //   updateApplicationStatus,
 } = require("../controllers/applicationController");
 
@@ -17,7 +17,7 @@ router.post("/", authMiddleware, applyToJob);
 router.get("/me", authMiddleware, getMyApplications);
 
 // // Get applications for a specific job (employer)
-// router.get("/job/:jobId", authMiddleware, getJobApplications);
+router.get("/job/:jobId", authMiddleware, getJobApplications);
 
 // // Update application status (employer)
 // router.patch("/:id/status", authMiddleware, updateApplicationStatus);
