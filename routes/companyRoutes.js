@@ -5,11 +5,14 @@ const {
   createCompany,
   getCompanyBySlug,
   updateCompany,
-  getCompanyById
+  getCompanyById,
+  getAllCompanies,
 } = require("../controllers/companyController");
 const authMiddleware = require("../middleware/authMiddleware");
 // create company
 router.post("/", authMiddleware, createCompany);
+// get all companies
+router.get("/", getAllCompanies);
 // read company details
 router.get("/:slug", getCompanyBySlug);
 // read company details by Id

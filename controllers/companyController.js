@@ -171,3 +171,19 @@ exports.updateCompany = async (req, res) => {
     });
   }
 };
+
+exports.getAllCompanies = async (req, res) => {
+  try {
+    const companies = await Company.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      count: companies.length,
+      companies,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch companies",
+      error: error.message,
+    });
+  }
+};
