@@ -5,7 +5,7 @@ const {
   applyToJob,
   getMyApplications,
   getJobApplications,
-  //   updateApplicationStatus,
+  updateApplicationStatus,
 } = require("../controllers/applicationController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -16,10 +16,10 @@ router.post("/", authMiddleware, applyToJob);
 // Get logged-in user's applications
 router.get("/me", authMiddleware, getMyApplications);
 
-// // Get applications for a specific job (employer)
+// Get applications for a specific job (employer)
 router.get("/job/:jobId", authMiddleware, getJobApplications);
 
-// // Update application status (employer)
-// router.patch("/:id/status", authMiddleware, updateApplicationStatus);
+// Update application status (employer)
+router.patch("/:id/status", authMiddleware, updateApplicationStatus);
 
 module.exports = router;

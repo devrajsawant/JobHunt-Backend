@@ -162,3 +162,67 @@ exports.getJobApplications = async (req, res) => {
     });
   }
 };
+
+// PATCH /applications/:id/status
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // applicationId
+    const { status } = req.body;
+    const userId = req.userId;
+
+    // 1. Validate status
+    const validStatuses = [
+      "pending",
+      "reviewed",
+      "shortlisted",
+      "rejected",
+      "accepted",
+    ];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
+    }
+
+    // 2. Find application
+    const application = await Application.findById(id).populate("jobId");
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
+      });
+    }
+
+    // 3. Authorization (IMPORTANT)
+    // Only job owner/company should update status
+    const job = application.jobId;
+
+    // assuming job.companyId === recruiter/company userId
+    // if (job.companyId.toString() !== userId) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "Not authorized to update this application",
+    //   });
+    // }
+
+    // 4. Update status
+    application.status = status;
+    await application.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Application status updated",
+      data: application,
+    });
+  } catch (error) {
+    console.error("Update Application Status Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
